@@ -14,24 +14,30 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private ListView mDeviceListview;
     private Button testAdd;
-
+    private TestAdapter adapter;
     private static final String[] texts = {"device A", "device B", "device C", "device D"};
+    private List<String> items;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        items = new ArrayList<>(Arrays.asList(texts));
+
         mDeviceListview = (ListView) findViewById(R.id.deviceListView);
         mDeviceListview.setOnItemClickListener(this);
 
-        //final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, texts);
-        //arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, texts);
-        BaseAdapter adapter = new TestAdapter(this.getApplicationContext(), R.layout.listitem_device, texts, texts);
+        adapter = new TestAdapter(this.getApplicationContext(), R.layout.listitem_device, items, items);
         mDeviceListview.setAdapter(adapter);
 
         testAdd = (Button) findViewById(R.id.testAdd);
@@ -39,7 +45,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v){
                 Log.i("test", "testadd");
-                //arrayAdapter.add("device Test");
+                //adapter.addDevice("testB");
+                items.add("test");
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -55,8 +63,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         private LayoutInflater inflater;
         private int layoutID;
-        private String[] namelist;
-        private String[] addresslist;
+        //private String[] namelist;
+        //private String[] addresslist;
+        private List<String> namelist;
+        private List<String> addresslist;
 
         class ViewHolder{
             TextView text;
@@ -64,16 +74,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
 
-        TestAdapter(Context context, int itemLayoutId, String[] names, String[] addresses ){
-            inflater = LayoutInflater.from(context);
-            layoutID = itemLayoutId;
-            namelist = names;
-            addresslist = addresses;
+        TestAdapter(Context context, int itemLayoutId, List<String> names, List<String> addresses ){
+            super();
+            this.inflater = LayoutInflater.from(context);
+            this.layoutID = itemLayoutId;
+            this.namelist = names;
+            this.addresslist = addresses;
+        }
+
+        public void addDevice(String name){
+            namelist.add(name);
+            addresslist.add(name);
         }
 
         @Override
         public int getCount(){
-            return namelist.length;
+            //return namelist.length;
+            return namelist.size();
         }
 
         @Override
@@ -92,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             ViewHolder holder;
 
            if(convertView == null){
+               //convertView = inflater.inflate(layoutID, parent, false);
                convertView = inflater.inflate(layoutID, null);
                holder = new ViewHolder();
                holder.text = convertView.findViewById(R.id.device_name);
@@ -101,10 +119,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                holder = (ViewHolder) convertView.getTag();
            }
 
-           holder.text.setText(namelist[position]);
-           holder.address.setText(addresslist[position]);
+           holder.text.setText(namelist.get(position));
+           holder.address.setText(addresslist.get(position));
+
            return convertView;
+
         }
+
     }
+
 }
+
 
